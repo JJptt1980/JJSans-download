@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         JJ Sans for Facebook／Instagram／Threads（字型載入）
 // @namespace    github.com/JJptt1980/JJSans-download
-// @version      1.1.0
-// @description  Meta 的網站（Facebook、Instagram、Threads）不允許從外部或 data: 載入字型，這個腳本改用 FontFace API 把 JJ Sans 加進頁面，並隱藏 Instagram、Threads 的「開啟應用程式」按鈕。字體套用、行距由 Stylus 樣式 jjsans-facebook.user.css 負責。
+// @version      1.2.0
+// @description  Meta 的網站（Facebook、Instagram、Threads）不允許從外部或 data: 載入字型，這個腳本改用 FontFace API 把 JJ Sans 加進頁面，並隱藏 Instagram、Threads 的「開啟應用程式」按鈕；從桌面捷徑（網頁應用程式模式）開啟時，加上下拉重新整理。字體套用、行距由 Stylus 樣式 jjsans-facebook.user.css 負責。
 // @author       JJptt
 // @homepageURL  https://github.com/JJptt1980/JJSans-download
 // @updateURL    https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/userscript/jjsans-facebook.user.js
@@ -13,6 +13,9 @@
 // @match        *://*.threads.net/*
 // @run-at       document-start
 // @grant        GM_getResourceURL
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @resource     jj400 https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/web/jj-sans-400.woff2
 // @resource     jj700 https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/web/jj-sans-700.woff2
 // @license      OFL-1.1
@@ -84,6 +87,121 @@ Stylus 的 @font-face 會載入失敗。FontFace API 用 ArrayBuffer 建字型�
       }
     }
     console.log('[JJ Sans] 字型載入', results.join('、'));
+  })();
+
+  // ---------- 下拉重新整理（三站都有） ----------
+  // 從桌面捷徑開啟時，Firefox 是網頁應用程式模式（沒有網址列），不支援自己的下拉重新整理。
+  // 預設只在這個模式啟用，一般分頁交給 Firefox 自己處理，避免兩個一起觸發。
+  // 腳本管理器的選單可以改成「一律啟用」或「關閉」。
+  (function pullToRefresh() {
+    const KEY = 'ptrMode'; // auto／always／off
+    const LABEL = { auto: '只在網頁應用程式模式', always: '一律啟用', off: '關閉' };
+    let mode = 'auto';
+    try { mode = GM_getValue(KEY, 'auto'); } catch (e) { /* 沒有 GM_getValue 就用預設 */ }
+    try {
+      for (const m of ['auto', 'always', 'off']) {
+        GM_registerMenuCommand(`下拉重新整理：${LABEL[m]}${m === mode ? '（目前）' : ''}`, () => {
+          GM_setValue(KEY, m);
+          location.reload();
+        });
+      }
+    } catch (e) { /* 沒有選單功能就算了 */ }
+
+    const appMode = ['standalone', 'fullscreen', 'minimal-ui'].some((m) => matchMedia(`(display-mode: ${m})`).matches);
+    const enabled = mode === 'always' || (mode === 'auto' && appMode);
+    console.log(`[JJ Sans] 下拉重新整理：設定 ${LABEL[mode] || mode}，網頁應用程式模式 ${appMode}，${enabled ? '啟用' : '不啟用'}`);
+    if (!enabled) return;
+
+    const THRESHOLD = 90; // 往下拉超過這麼多 px，放開就重新整理
+    let tracking = false;
+    let armed = false;
+    let reloading = false;
+    let startX = 0;
+    let startY = 0;
+    let indicator = null;
+
+    const atTop = () =>
+      (window.scrollY || 0) <= 0 && ((document.scrollingElement && document.scrollingElement.scrollTop) || 0) <= 0;
+
+    const visible = (el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+
+    function blocked(target) {
+      let el = target instanceof Element ? target : target && target.parentElement;
+      if (!el) return true;
+      if (el.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"], [role="dialog"], [aria-modal="true"]')) return true;
+      // 看圖、看限時動態、發文框等對話視窗開著時不觸發
+      for (const d of document.querySelectorAll('[role="dialog"], [aria-modal="true"]')) {
+        if (visible(d)) return true;
+      }
+      // 手指所在的區塊自己可以捲動而且還沒捲到頂（例如留言面板），不觸發
+      for (let n = el; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
+        if (n.scrollTop > 0) {
+          const oy = getComputedStyle(n).overflowY;
+          if (oy === 'auto' || oy === 'scroll' || oy === 'overlay') return true;
+        }
+      }
+      return false;
+    }
+
+    function showIndicator(dy) {
+      if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.style.cssText = [
+          'position:fixed', 'top:0', 'left:50%', 'width:40px', 'height:40px', 'margin-left:-20px',
+          'border-radius:50%', 'background:#fff', 'color:#333', 'box-shadow:0 2px 8px rgba(0,0,0,.3)',
+          'display:flex', 'align-items:center', 'justify-content:center', 'font:22px/1 system-ui,sans-serif',
+          'z-index:2147483647', 'pointer-events:none', 'transition:transform .05s linear',
+        ].join(';');
+        document.documentElement.appendChild(indicator);
+      }
+      indicator.textContent = armed ? '↻' : '↓';
+      indicator.style.transform = `translateY(${Math.min(dy / 2, 70) + 8}px)`;
+      indicator.style.opacity = String(Math.min(dy / THRESHOLD, 1));
+    }
+
+    function reset() {
+      tracking = false;
+      armed = false;
+      if (indicator && !reloading) {
+        indicator.remove();
+        indicator = null;
+      }
+    }
+
+    window.addEventListener('touchstart', (e) => {
+      if (reloading || e.touches.length !== 1 || !atTop() || blocked(e.target)) return;
+      tracking = true;
+      armed = false;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true, capture: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!tracking) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      // 剛開始動的 10px 內先不判斷方向，避免手指微微晃動就取消
+      if (dy < -10 || !atTop() || Math.abs(dx) > Math.max(dy, 10)) {
+        reset();
+        return;
+      }
+      if (dy <= 0) return;
+      armed = dy > THRESHOLD;
+      showIndicator(dy);
+    }, { passive: true, capture: true });
+
+    window.addEventListener('touchend', () => {
+      if (tracking && armed && !reloading) {
+        reloading = true; // 一次下拉只重新整理一次
+        if (indicator) indicator.textContent = '↻';
+        location.reload();
+        return;
+      }
+      reset();
+    }, { passive: true, capture: true });
+
+    window.addEventListener('touchcancel', reset, { passive: true, capture: true });
+    window.addEventListener('pagehide', () => { reloading = true; });
   })();
 
   // ---------- Instagram、Threads：隱藏「開啟應用程式」按鈕 ----------

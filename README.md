@@ -27,7 +27,7 @@ JJ Sans 是一套合併字型：英文用 [Inter](https://github.com/rsms/inter)
 
 這三個網站登入後都不允許網頁從外部或 data: 載入字型，所以要裝兩樣東西：
 
-1. **使用者腳本**（負責載入字型，並隱藏 Instagram、Threads 的「開啟應用程式」按鈕）：裝好 Violentmonkey 或 Tampermonkey 後，打開
+1. **使用者腳本**（負責載入字型、隱藏 Instagram 和 Threads 的「開啟應用程式」按鈕；從桌面捷徑開啟時可以下拉重新整理）：裝好 Violentmonkey 或 Tampermonkey 後，打開
    https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/userscript/jjsans-facebook.user.js
 2. **Stylus 樣式**（負責把文字換成 JJ Sans、調行距、隱藏 Facebook 首頁限時動態）：裝好 Stylus 後，打開
    https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/stylus/jjsans-facebook.user.css
