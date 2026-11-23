@@ -15,6 +15,7 @@
 - 1.0.6＋使用者腳本 1.0.0（2026-11-23）：登入後 CSP font-src 不允許 data:，1.0.5 的 @font-face 其實載入失敗。新增 userscript/jjsans-facebook.user.js：@resource 抓 web/ 的 woff2（安裝時由腳本管理器下載），用 FontFace API（ArrayBuffer）加進 document.fonts，沙箱加不到就改用 unsafeWindow＋cloneInto。Stylus 1.0.6 拿掉內嵌字型（檔案從 2.3 MB 變成約 2 KB），只負責 font-family、行距、隱藏限時動態
 - 1.1.0（2026-11-23，Stylus 和使用者腳本同版號）：加上 Instagram、Threads。Stylus 新增 instagram.com／threads.com／threads.net 區段，只改 font-family（"JJ Sans", system-ui）和行距；兩站圖示都是 SVG。使用者腳本 @match 加兩站，並用文字（使用應用程式／開啟應用程式…）找「開 App」按鈕：Instagram 藏整條 fixed 底部列（高度 < 120px），Threads 只藏按鈕本身（頂部列還有選單、搜尋）；用 MutationObserver 持續處理
 - 使用者腳本 1.2.0（2026-11-23）：三站加「下拉重新整理」。預設只在網頁應用程式模式（display-mode standalone／fullscreen／minimal-ui）啟用；腳本管理器選單可改「一律啟用／關閉」（GM_setValue ptrMode）。頁面在頂端、往下拉超過 90px、水平位移小於垂直位移才觸發；輸入框、對話視窗、可捲動且沒捲到頂的區塊不觸發；監聽都是 passive，不擋原本捲動；一次下拉只重新載入一次
+- 使用者腳本 1.2.1（2026-11-24）：Threads 不加下拉重新整理。實機錄影看到 Threads 自己就有下拉刷新（標誌會轉），腳本再整頁重新載入會出現「from Meta」啟動畫面，等於刷兩次。Facebook、Instagram 照舊
 
 ## 怎麼發新版
 1. 在 Fonts 專案產生字型（完整版要跑 scripts/patch_glyphs.py 的 patch；精簡版 make_subset.py small --out；網頁版 lite-for-webview/）

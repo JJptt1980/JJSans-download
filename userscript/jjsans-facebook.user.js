@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         JJ Sans for Facebook／Instagram／Threads（字型載入）
 // @namespace    github.com/JJptt1980/JJSans-download
-// @version      1.2.0
-// @description  Meta 的網站（Facebook、Instagram、Threads）不允許從外部或 data: 載入字型，這個腳本改用 FontFace API 把 JJ Sans 加進頁面，並隱藏 Instagram、Threads 的「開啟應用程式」按鈕；從桌面捷徑（網頁應用程式模式）開啟時，加上下拉重新整理。字體套用、行距由 Stylus 樣式 jjsans-facebook.user.css 負責。
+// @version      1.2.1
+// @description  Meta 的網站（Facebook、Instagram、Threads）不允許從外部或 data: 載入字型，這個腳本改用 FontFace API 把 JJ Sans 加進頁面，並隱藏 Instagram、Threads 的「開啟應用程式」按鈕；從桌面捷徑（網頁應用程式模式）開啟時，Facebook、Instagram 加上下拉重新整理（Threads 本身就有）。字體套用、行距由 Stylus 樣式 jjsans-facebook.user.css 負責。
 // @author       JJptt
 // @homepageURL  https://github.com/JJptt1980/JJSans-download
 // @updateURL    https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/userscript/jjsans-facebook.user.js
@@ -89,11 +89,13 @@ Stylus 的 @font-face 會載入失敗。FontFace API 用 ArrayBuffer 建字型�
     console.log('[JJ Sans] 字型載入', results.join('、'));
   })();
 
-  // ---------- 下拉重新整理（三站都有） ----------
+  // ---------- 下拉重新整理（Facebook、Instagram；Threads 本身就有） ----------
   // 從桌面捷徑開啟時，Firefox 是網頁應用程式模式（沒有網址列），不支援自己的下拉重新整理。
   // 預設只在這個模式啟用，一般分頁交給 Firefox 自己處理，避免兩個一起觸發。
   // 腳本管理器的選單可以改成「一律啟用」或「關閉」。
   (function pullToRefresh() {
+    // Threads 自己就有下拉重新整理（標誌會轉），再整頁重新載入會變成刷兩次，所以不加
+    if (/(^|\.)threads\.(com|net)$/.test(location.hostname)) return;
     const KEY = 'ptrMode'; // auto／always／off
     const LABEL = { auto: '只在網頁應用程式模式', always: '一律啟用', off: '關閉' };
     let mode = 'auto';
