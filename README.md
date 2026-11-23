@@ -23,13 +23,16 @@ JJ Sans 是一套合併字型：英文用 [Inter](https://github.com/rsms/inter)
 @font-face { font-family: "JJ Sans"; src: url("jj-sans-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
 ```
 
-## 讓 Facebook 網頁改用 JJ Sans（Stylus）
+## 讓 Facebook 網頁改用 JJ Sans
 
-裝好 [Stylus](https://add0n.com/stylus.html) 擴充套件（電腦或手機 Firefox 都可以）後，打開下面的網址，就會跳出安裝畫面：
+登入後的 Facebook 不允許網頁從外部或 data: 載入字型，所以要裝兩樣東西：
 
-https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/stylus/jjsans-facebook.user.css
+1. **使用者腳本**（負責載入字型）：裝好 Violentmonkey 或 Tampermonkey 後，打開
+   https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/userscript/jjsans-facebook.user.js
+2. **Stylus 樣式**（負責把文字換成 JJ Sans、調行距、隱藏首頁限時動態）：裝好 Stylus 後，打開
+   https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/stylus/jjsans-facebook.user.css
 
-Facebook 只允許從自己的網域載入字型，所以這個樣式檔把字型直接內嵌在裡面，檔案約 2.3 MB。只收常用字，沒有的字（含 emoji）由系統字型顯示。
+字型只收常用字，沒有的字（含 emoji）由系統字型顯示；Facebook 自己的圖示不受影響。
 
 ## 特色
 
