@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JJ Sans for Facebook／Instagram／Threads（字型載入）
 // @namespace    github.com/JJptt1980/JJSans-download
-// @version      1.2.1
+// @version      1.2.2
 // @description  Meta 的網站（Facebook、Instagram、Threads）不允許從外部或 data: 載入字型，這個腳本改用 FontFace API 把 JJ Sans 加進頁面，並隱藏 Instagram、Threads 的「開啟應用程式」按鈕；從桌面捷徑（網頁應用程式模式）開啟時，Facebook、Instagram 加上下拉重新整理（Threads 本身就有）。字體套用、行距由 Stylus 樣式 jjsans-facebook.user.css 負責。
 // @author       JJptt
 // @homepageURL  https://github.com/JJptt1980/JJSans-download
@@ -94,8 +94,19 @@ Stylus 的 @font-face 會載入失敗。FontFace API 用 ArrayBuffer 建字型�
   // 預設只在這個模式啟用，一般分頁交給 Firefox 自己處理，避免兩個一起觸發。
   // 腳本管理器的選單可以改成「一律啟用」或「關閉」。
   (function pullToRefresh() {
-    // Threads 自己就有下拉重新整理（標誌會轉），再整頁重新載入會變成刷兩次，所以不加
-    if (/(^|\.)threads\.(com|net)$/.test(location.hostname)) return;
+    const appMode = ['standalone', 'fullscreen', 'minimal-ui'].some((m) => matchMedia(`(display-mode: ${m})`).matches);
+    // Firefox（GeckoView）在網頁應用程式模式也有自己的下拉重新整理，會整頁重新載入（Threads 會出現「from Meta」啟動畫面）。
+    // 網頁宣告 overscroll-behavior 時 Firefox 就不會觸發，所以在這個模式一律關掉 Firefox 的，避免重新整理兩次
+    function stopBrowserPull() {
+      const st = document.createElement('style');
+      st.textContent = 'html, body { overscroll-behavior-y: contain !important; }';
+      (document.head || document.documentElement).appendChild(st);
+    }
+    // Threads 自己就有下拉重新整理（標誌會轉），交給它，腳本不加
+    if (/(^|\.)threads\.(com|net)$/.test(location.hostname)) {
+      if (appMode) stopBrowserPull();
+      return;
+    }
     const KEY = 'ptrMode'; // auto／always／off
     const LABEL = { auto: '只在網頁應用程式模式', always: '一律啟用', off: '關閉' };
     let mode = 'auto';
@@ -109,10 +120,10 @@ Stylus 的 @font-face 會載入失敗。FontFace API 用 ArrayBuffer 建字型�
       }
     } catch (e) { /* 沒有選單功能就算了 */ }
 
-    const appMode = ['standalone', 'fullscreen', 'minimal-ui'].some((m) => matchMedia(`(display-mode: ${m})`).matches);
     const enabled = mode === 'always' || (mode === 'auto' && appMode);
     console.log(`[JJ Sans] 下拉重新整理：設定 ${LABEL[mode] || mode}，網頁應用程式模式 ${appMode}，${enabled ? '啟用' : '不啟用'}`);
     if (!enabled) return;
+    stopBrowserPull(); // 由腳本負責，Firefox 的關掉
 
     const THRESHOLD = 90; // 往下拉超過這麼多 px，放開就重新整理
     let tracking = false;
