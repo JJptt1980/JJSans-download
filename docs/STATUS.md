@@ -8,6 +8,7 @@
 
 - stylus/jjsans-facebook.user.css 1.0.0（2026-11-23）：Facebook 用 Stylus 樣式檔，內嵌 Fonts 專案 lite-for-webview/ 的 400、700 WOFF2（base64，約 2.3 MB）。由 Fonts 的 scripts/make_userstyle.py 產生。Facebook CSP 的 font-src 只允許 data: 和 Facebook 網域，所以不能用外部網址
 - 1.0.1（2026-11-23）：@font-face 加 ascent／descent／line-gap-override（93%／24%／0%，接近 Roboto），line-height:normal 的地方不再太鬆；新增 @var 行距（預設 1.3，1.1～1.6），只套文字元素，不動 div、i、svg
+- 1.0.2（2026-11-23）：改用 @preprocessor uso；新增 @var「字的大小」（size-adjust，100%～30%），行距改成 行距×字的大小，字縮小時行距一起縮
 
 ## 怎麼發新版
 1. 在 Fonts 專案產生字型（完整版要跑 scripts/patch_glyphs.py 的 patch；精簡版 make_subset.py small --out；網頁版 lite-for-webview/）
