@@ -1,8 +1,8 @@
 /* ==UserStyle==
-@name           JJ Sans for Facebook
+@name           JJ Sans for Facebook／Instagram／Threads
 @namespace      github.com/JJptt1980/JJSans-download
-@version        1.0.6
-@description    把 Facebook 網頁的文字改成 JJ Sans，並隱藏首頁的限時動態。字型本身要搭配使用者腳本 jjsans-facebook.user.js 載入。
+@version        1.1.0
+@description    把 Facebook、Instagram、Threads 網頁的文字改成 JJ Sans，並隱藏 Facebook 首頁的限時動態。字型本身要搭配使用者腳本 jjsans-facebook.user.js 載入。
 @author         JJptt
 @homepageURL    https://github.com/JJptt1980/JJSans-download
 @updateURL      https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/stylus/jjsans-facebook.user.css
@@ -20,6 +20,7 @@ JJ Sans does not use the Reserved Font Name 'Source'.
 收錄約 6,300 個常用字；沒有的字（含 emoji）由手機內建字型顯示。
 */
 
+/* ---------- Facebook ---------- */
 @-moz-document domain("facebook.com") {
 
   /* 一般文字改用 JJ Sans。m.facebook.com 的圖示是補充私用區的字元（span.f3），靠 FB 自己的圖示字型畫；
@@ -40,5 +41,19 @@ JJ Sans does not use the Reserved Font Name 'Source'.
      結構：div.m.displayed > div.m > div.m.bg-s6 > div.m.bg-s2 > div.m.hscroller.no-hscroller */
   .displayed:has(.hscroller) {
     display: none !important;
+  }
+}
+
+/* ---------- Instagram、Threads ---------- */
+@-moz-document domain("instagram.com"), domain("threads.com"), domain("threads.net") {
+  /* Instagram、Threads 的圖示都是 SVG，沒有圖示字型，直接換掉就好 */
+  html, body, div, span, p, a, li, td, th, label, strong, b, em, small,
+  h1, h2, h3, h4, h5, h6, input, textarea, button, select, abbr, time {
+    font-family: "JJ Sans", system-ui, sans-serif !important;
+  }
+
+  p, span, a, li, label, strong, b, em, small, abbr, time, td, th,
+  h1, h2, h3, h4, h5, h6, textarea, div[dir="auto"] {
+    line-height: var(--jj-lh) !important;
   }
 }

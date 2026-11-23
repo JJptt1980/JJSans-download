@@ -13,6 +13,7 @@
 - 1.0.4（2026-11-23）：退回 1.0.1 的內容（只改版本號）。原因：手機實測 1.0.3 會把 m.facebook.com 的圖示變成灰色方塊，限時動態的空白也沒消失。1.0.2 的「字的大小」（uso＋size-adjust）和 1.0.3 的「隱藏限時動態」先拿掉，原因還沒查出來
 - 1.0.5（2026-11-23）：查出原因（Parallels 對話用 Firefox 遠端除錯讀 DOM）：FB 圖示是補充私用區字元（span.f3），靠 popular-symbols、lite-glyphs-* 、snaptu-symbols 圖示字型畫，1.0.1 起把 font-family 蓋掉就會變灰色方塊。修法：JJ Sans 後面接上這些圖示字型。限時動態固定隱藏：.displayed:has(.hscroller)（外層 div.m.displayed 有固定高度）。兩項都已在手機注入實測
 - 1.0.6＋使用者腳本 1.0.0（2026-11-23）：登入後 CSP font-src 不允許 data:，1.0.5 的 @font-face 其實載入失敗。新增 userscript/jjsans-facebook.user.js：@resource 抓 web/ 的 woff2（安裝時由腳本管理器下載），用 FontFace API（ArrayBuffer）加進 document.fonts，沙箱加不到就改用 unsafeWindow＋cloneInto。Stylus 1.0.6 拿掉內嵌字型（檔案從 2.3 MB 變成約 2 KB），只負責 font-family、行距、隱藏限時動態
+- 1.1.0（2026-11-23，Stylus 和使用者腳本同版號）：加上 Instagram、Threads。Stylus 新增 instagram.com／threads.com／threads.net 區段，只改 font-family（"JJ Sans", system-ui）和行距；兩站圖示都是 SVG。使用者腳本 @match 加兩站，並用文字（使用應用程式／開啟應用程式…）找「開 App」按鈕：Instagram 藏整條 fixed 底部列（高度 < 120px），Threads 只藏按鈕本身（頂部列還有選單、搜尋）；用 MutationObserver 持續處理
 
 ## 怎麼發新版
 1. 在 Fonts 專案產生字型（完整版要跑 scripts/patch_glyphs.py 的 patch；精簡版 make_subset.py small --out；網頁版 lite-for-webview/）
