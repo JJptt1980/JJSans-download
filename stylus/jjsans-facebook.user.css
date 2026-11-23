@@ -1,7 +1,7 @@
 /* ==UserStyle==
 @name           JJ Sans for Facebook
 @namespace      github.com/JJptt1980/JJSans-download
-@version        1.0.2
+@version        1.0.3
 @description    把 Facebook 網頁的文字改成 JJ Sans（Inter＋Noto Sans CJK JP）。字型以 base64 內嵌，不需要連外。
 @author         JJptt
 @homepageURL    https://github.com/JJptt1980/JJSans-download
@@ -10,6 +10,7 @@
 @preprocessor   uso
 @var range      jj-size "字的大小（%，100 是原本大小，最小可縮到 30，約 1/3）" [100, 30, 100, 5, "%"]
 @var range      jj-lh "行距（倍數，數字越小越緊；Facebook 原本約 1.33）" [1.3, 1.1, 1.6, 0.05]
+@var select     jj-stories "首頁的限時動態" {"隱藏（連空白一起拿掉）*": ".hscroller, *:has(> .hscroller)", "顯示": "#jj-sans-never-match"}
 ==/UserStyle== */
 
 /*
@@ -54,5 +55,10 @@ JJ Sans does not use the Reserved Font Name 'Source'.
   p, span, a, li, label, strong, b, em, small, abbr, time, td, th,
   h1, h2, h3, h4, h5, h6, textarea, div[dir="auto"] {
     line-height: calc(/*[[jj-lh]]*/ * /*[[jj-size]]*/) !important;  /* 行距跟著字的大小縮放 */
+  }
+
+  /* 限時動態：選「隱藏」時，連同外層固定高度的容器一起藏起來；選「顯示」時這條規則不會套到任何東西 */
+  /*[[jj-stories]]*/ {
+    display: none !important;
   }
 }
