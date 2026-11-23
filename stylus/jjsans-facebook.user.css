@@ -1,8 +1,8 @@
 /* ==UserStyle==
 @name           JJ Sans for Facebook
 @namespace      github.com/JJptt1980/JJSans-download
-@version        1.0.4
-@description    把 Facebook 網頁的文字改成 JJ Sans（Inter＋Noto Sans CJK JP）。字型以 base64 內嵌，不需要連外。
+@version        1.0.5
+@description    把 Facebook 網頁的文字改成 JJ Sans（Inter＋Noto Sans CJK JP），並隱藏首頁的限時動態。字型以 base64 內嵌，不需要連外。
 @author         JJptt
 @homepageURL    https://github.com/JJptt1980/JJSans-download
 @updateURL      https://raw.githubusercontent.com/JJptt1980/JJSans-download/main/stylus/jjsans-facebook.user.css
@@ -40,15 +40,23 @@ JJ Sans does not use the Reserved Font Name 'Source'.
     line-gap-override: 0%;
   }
 
-  /* 一般文字改用 JJ Sans；圖示多半是圖片或 SVG，不受影響。i 標籤保留原字型以免蓋掉圖示字型 */
+  /* 一般文字改用 JJ Sans。m.facebook.com 的圖示是補充私用區的字元（span.f3），靠 FB 自己的圖示字型畫；
+     JJ Sans 沒有這些字元，所以後面要接上 FB 的圖示字型，不然圖示會變成灰色方塊 */
   html, body, div, span, p, a, li, td, th, label, strong, b, em, small,
   h1, h2, h3, h4, h5, h6, input, textarea, button, select, abbr, time {
-    font-family: "JJ Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif !important;
+    font-family: "JJ Sans", popular-symbols, lite-glyphs-outlined, lite-glyphs-filled,
+      lite-glyphs-nuc-outlined, lite-glyphs-nuc-filled, snaptu-symbols, system-ui, sans-serif !important;
   }
 
   /* 行距：只調文字元素，不動 div（版面）、i、svg，避免按鈕和圖示跑版。數值在 Stylus 的樣式設定裡調 */
   p, span, a, li, label, strong, b, em, small, abbr, time, td, th,
   h1, h2, h3, h4, h5, h6, textarea, div[dir="auto"] {
     line-height: var(--jj-lh) !important;
+  }
+
+  /* 首頁的限時動態：連同外層固定高度（約 200px）的容器一起藏起來。
+     結構：div.m.displayed > div.m > div.m.bg-s6 > div.m.bg-s2 > div.m.hscroller.no-hscroller */
+  .displayed:has(.hscroller) {
+    display: none !important;
   }
 }
