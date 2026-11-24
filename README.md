@@ -45,6 +45,10 @@ JJ Sans 是一套合併字型：英文用 [Inter](https://github.com/rsms/inter)
 - 精簡版和網頁版只收常用字，沒有的字會由系統字型顯示。
 - Inter 的字距微調（kerning）沒有帶進來。
 
+## 問題回報
+
+使用上有問題（缺字、字形不對、網頁樣式跑掉等），歡迎到 JJptt Facebook 粉專留言或私訊：https://www.facebook.com/1466948699840024
+
 ## 授權
 
 SIL Open Font License 1.1，見 [`OFL.txt`](OFL.txt)。可以免費使用，也可以用在商業作品裡；不能單獨販售字型檔。改版散布時要沿用 OFL，並保留著作權聲明。
